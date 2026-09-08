@@ -1,7 +1,37 @@
-import React from 'react';
-import { PackageCheck, Ship, Scale, Layers } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { Ship, LogIn, LogOut, User, Database } from 'lucide-react';
+import { AuthModal } from './AuthModal';
+import { SupabaseSetupModal } from './SupabaseSetupModal';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  user: any;
+  onUserChange: (user: any) => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ user, onUserChange }) => {
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isSetupOpen, setIsSetupOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      onUserChange(session?.user || null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      onUserChange(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [onUserChange]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    onUserChange(null);
+  };
+
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-indigo-100 sticky top-0 z-30 shadow-xs">
       <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -19,11 +49,51 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-600 bg-indigo-50/60 px-3 py-1.5 rounded-full border border-indigo-100">
-          <PackageCheck className="w-4 h-4 text-indigo-500" />
-          <span>G1, F1, F4, F5 규격 자동 계산 지원</span>
+        <div className="flex items-center gap-2">
+          {/* Supabase Setup Guide button */}
+          <button
+            type="button"
+            onClick={() => setIsSetupOpen(true)}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all cursor-pointer"
+            title="Supabase 설정 및 SQL 가이드"
+          >
+            <Database className="w-4 h-4 text-indigo-600" />
+            <span className="hidden sm:inline">DB 설정 가이드</span>
+          </button>
+
+          {/* Auth Button */}
+          {user ? (
+            <div className="flex items-center gap-2 bg-indigo-50/80 border border-indigo-100 px-3 py-1.5 rounded-2xl">
+              <div className="w-7 h-7 rounded-full bg-indigo-200 text-indigo-800 flex items-center justify-center text-xs font-bold">
+                <User className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-xs font-semibold text-slate-700 max-w-[120px] sm:max-w-[180px] truncate">
+                {user.email}
+              </span>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-white transition-all cursor-pointer"
+                title="로그아웃"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsAuthOpen(true)}
+              className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-xs cursor-pointer"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>로그인 / 회원가입</span>
+            </button>
+          )}
         </div>
       </div>
+
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} onSuccess={() => {}} />
+      <SupabaseSetupModal isOpen={isSetupOpen} onClose={() => setIsSetupOpen(false)} />
     </header>
   );
 };

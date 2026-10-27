@@ -20,10 +20,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({ items, onChange }) => {
   };
 
   const handleRemoveItem = (id: string) => {
-    if (items.length <= 1) {
-      // Keep at least one item
-      return;
-    }
+    if (items.length <= 1) return;
     onChange(items.filter((item) => item.id !== id));
   };
 
@@ -46,7 +43,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({ items, onChange }) => {
             <Package className="w-5 h-5 text-indigo-500" />
             <span>오더 정보 입력 (혼합 적재 지원)</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">여러 포장단위(G1, F1 등)를 혼합하여 오더를 구성할 수 있습니다.</p>
+          <p className="text-xs text-slate-500 mt-0.5">다양한 포장단위(G0, G1, F1, F2, F4, F5, C3L)를 혼합하여 오더를 구성하세요.</p>
         </div>
         <button
           type="button"
@@ -88,7 +85,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({ items, onChange }) => {
 
               {/* Packaging Type Selector */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-slate-600">포장단위 종류</label>
+                <label className="text-xs font-semibold text-slate-600">포장단위 종류 (규격별 중량 및 팔레트 적재 수량)</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {(Object.keys(PACKAGING_CONFIGS) as PackagingType[]).map((type) => {
                     const cfg = PACKAGING_CONFIGS[type];
@@ -110,7 +107,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({ items, onChange }) => {
                           </span>
                           {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" />}
                         </div>
-                        <span className="text-[11px] text-slate-500 mt-0.5">{cfg.unitWeightKg}KG / 단위</span>
+                        <span className="text-[11px] text-slate-500 mt-0.5">{cfg.unitWeightKg}KG / 팔레트당 {cfg.itemsPerPallet}개</span>
                       </button>
                     );
                   })}
@@ -143,7 +140,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({ items, onChange }) => {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600">팔레트 적재 여부 (개당 10kg)</label>
+                  <label className="text-xs font-semibold text-slate-600">팔레트 사용 여부 (개당 {config.palletWeightKg}kg)</label>
                   <div className="grid grid-cols-2 gap-2 h-[42px]">
                     <button
                       type="button"
@@ -165,7 +162,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({ items, onChange }) => {
                           : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                       }`}
                     >
-                      <span>벌크 (미사용)</span>
+                      <span>팔렛트 미사용</span>
                     </button>
                   </div>
                 </div>

@@ -32,7 +32,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({ result }) => {
           </div>
         </div>
 
-        {/* 2. Total CBM (1000KG당 1.6 CBM) */}
+        {/* 2. Total CBM (순중량 기준 1000KG당 1.6 CBM) */}
         <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 flex flex-col justify-between">
           <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold mb-1">
             <Layers className="w-4 h-4 text-sky-500" />
@@ -43,23 +43,23 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({ result }) => {
               {result.totalCbm.toFixed(2)} <span className="text-sm font-normal text-slate-500">CBM</span>
             </div>
             <span className="text-[11px] text-sky-700">
-              * CBM 공식 적용: (총중량 {result.totalGrossWeightKg.toLocaleString()}kg ÷ 1000) × 1.6
+              * CBM 공식 적용: (순중량 {result.totalOrderWeightKg.toLocaleString()}kg ÷ 1000) × 1.6
             </span>
           </div>
         </div>
 
-        {/* 3. Gross Weight with G1 formula */}
+        {/* 3. Gross Weight with G0/G1 formula */}
         <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 flex flex-col justify-between">
           <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold mb-1">
             <Scale className="w-4 h-4 text-emerald-500" />
-            <span>포장별 총중량 (G1 공식 반영)</span>
+            <span>포장별 총중량 (포장재 포함)</span>
           </div>
           <div className="flex flex-col gap-1">
             <div className="text-xl font-bold text-slate-800">
               {result.totalGrossWeightKg.toLocaleString()} <span className="text-sm font-normal text-slate-500">KG (총중량)</span>
             </div>
             <div className="text-xs text-slate-500">
-              G1 포장인 경우: (수량 ÷ 25) × 25.6 공식 적용됨
+              G0/G1 포장재 중량 반영됨
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({ result }) => {
               {result.totalWeightKg.toLocaleString()} <span className="text-sm font-normal text-slate-500">KG (최종)</span>
             </div>
             <div className="text-xs text-slate-500">
-              팔레트 총 {result.totalPallets}개 (+{result.totalPalletWeightKg.toLocaleString()}kg, 개당 10kg)
+              팔레트 총 {result.totalPallets}개 (+{result.totalPalletWeightKg.toLocaleString()}kg)
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({ result }) => {
                 <th className="p-3 font-semibold">품목 / 규격</th>
                 <th className="p-3 font-semibold">오더 중량</th>
                 <th className="p-3 font-semibold">환산 수량</th>
-                <th className="p-3 font-semibold">총중량 (G1공식)</th>
+                <th className="p-3 font-semibold">총중량</th>
                 <th className="p-3 font-semibold">팔레트</th>
                 <th className="p-3 font-semibold">부피 (CBM)</th>
               </tr>
@@ -111,7 +111,7 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({ result }) => {
                     <td className="p-3 text-slate-600">약 {it.unitCount.toLocaleString()}개</td>
                     <td className="p-3 text-slate-700 font-semibold">{it.grossWeightKg.toLocaleString()} KG</td>
                     <td className="p-3 text-slate-600">
-                      {it.requiredPallets > 0 ? `${it.requiredPallets}개 (+${it.totalPalletWeightKg}kg)` : '미사용'}
+                      {it.requiredPallets > 0 ? `${it.requiredPallets}개 (+${it.totalPalletWeightKg}kg)` : '팔렛트 미사용'}
                     </td>
                     <td className="p-3 text-slate-700 font-semibold">{it.cbm.toFixed(2)} CBM</td>
                   </tr>

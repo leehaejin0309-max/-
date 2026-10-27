@@ -1,18 +1,34 @@
 import { PackagingInfo, PackagingType, OrderItem, CalculationResult, ItemCalculationResult } from '../types';
 
 export const PACKAGING_CONFIGS: Record<PackagingType, PackagingInfo> = {
+  G0: {
+    code: 'G0',
+    name: 'G0 포장 (20KG 지대/백)',
+    unitWeightKg: 20,
+    itemsPerPallet: 40,
+    palletWeightKg: 15,
+    palletDimensions: { lengthMm: 1300, widthMm: 1100, heightMm: 1400 },
+  },
   G1: {
     code: 'G1',
     name: 'G1 포장 (25KG 지대/백)',
     unitWeightKg: 25,
     itemsPerPallet: 40,
-    palletWeightKg: 10,
+    palletWeightKg: 15,
     palletDimensions: { lengthMm: 1300, widthMm: 1100, heightMm: 1400 },
   },
   F1: {
     code: 'F1',
     name: 'F1 포장 (500KG 빅백/톤백)',
     unitWeightKg: 500,
+    itemsPerPallet: 2,
+    palletWeightKg: 10,
+    palletDimensions: { lengthMm: 1100, widthMm: 1100, heightMm: 2200 },
+  },
+  F2: {
+    code: 'F2',
+    name: 'F2 포장 (600KG 빅백/톤백)',
+    unitWeightKg: 600,
     itemsPerPallet: 2,
     palletWeightKg: 10,
     palletDimensions: { lengthMm: 1100, widthMm: 1100, heightMm: 2200 },
@@ -33,6 +49,14 @@ export const PACKAGING_CONFIGS: Record<PackagingType, PackagingInfo> = {
     palletWeightKg: 10,
     palletDimensions: { lengthMm: 1100, widthMm: 1100, heightMm: 2200 },
   },
+  C3L: {
+    code: 'C3L',
+    name: 'C3L 포장 (650KG 백)',
+    unitWeightKg: 650,
+    itemsPerPallet: 1,
+    palletWeightKg: 10,
+    palletDimensions: { lengthMm: 1100, widthMm: 1100, heightMm: 2200 },
+  },
 };
 
 // Container Specs
@@ -40,12 +64,12 @@ export const CONTAINER_SPECS = {
   '20ft': {
     name: '20피트 컨테이너 (20ft Dry)',
     maxWeightKg: 21600, // Safe payload 21.6 tons
-    maxCbm: 28, // Practical usable CBM (theoretical 33 CBM)
+    maxCbm: 28, // Practical usable CBM
   },
   '40ft': {
     name: '40피트 컨테이너 (40ft Dry)',
     maxWeightKg: 26500, // Safe payload 26.5 tons
-    maxCbm: 58, // Practical usable CBM (theoretical 67 CBM)
+    maxCbm: 58, // Practical usable CBM
   },
 };
 
@@ -65,8 +89,9 @@ export function calculateMixedOrder(items: OrderItem[]): CalculationResult {
     const netWeight = orderWeight;
 
     let grossWeight = 0;
-    if (item.packagingType === 'G1') {
-      // G1: (수량 / 25) * 25.6
+    if (item.packagingType === 'G0') {
+      grossWeight = (orderWeight / 20) * 20.6;
+    } else if (item.packagingType === 'G1') {
       grossWeight = (orderWeight / 25) * 25.6;
     } else {
       grossWeight = orderWeight;
@@ -80,8 +105,8 @@ export function calculateMixedOrder(items: OrderItem[]): CalculationResult {
     }
 
     const itemTotalWeight = grossWeight + palletWeight;
-    // CBM rule: 1000KG당 곱하기 1.6
-    const itemCbm = (grossWeight / 1000) * 1.6;
+    // CBM rule: 순중량 나누기 1000 곱하기 1.6
+    const itemCbm = (netWeight / 1000) * 1.6;
 
     totalOrderWeightKg += orderWeight;
     totalNetWeightKg += netWeight;
@@ -92,9 +117,9 @@ export function calculateMixedOrder(items: OrderItem[]): CalculationResult {
     totalCbm += itemCbm;
 
     const palletSizeDesc =
-      item.packagingType === 'G1'
+      item.packagingType === 'G0' || item.packagingType === 'G1'
         ? '1300x1100x1400mm (팔레트당 40개)'
-        : '1100x1100x2200mm (팔레트당 2개)';
+        : '1100x1100x2200mm (팔레트당 ' + config.itemsPerPallet + '개)';
 
     return {
       id: item.id,
@@ -111,8 +136,8 @@ export function calculateMixedOrder(items: OrderItem[]): CalculationResult {
     };
   });
 
-  // Ensure total CBM precisely follows (totalGrossWeightKg / 1000) * 1.6
-  totalCbm = (totalGrossWeightKg / 1000) * 1.6;
+  // Ensure total CBM precisely follows (totalNetWeightKg / 1000) * 1.6
+  totalCbm = (totalNetWeightKg / 1000) * 1.6;
 
   // Container checks
   const checkContainer = (maxWeight: number, maxCbm: number) => {

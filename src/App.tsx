@@ -8,12 +8,14 @@ import { ContainerComparison } from './components/ContainerComparison';
 import { ReferenceGuide } from './components/ReferenceGuide';
 import { DataManager } from './components/DataManager';
 import { SupabaseSetupModal } from './components/SupabaseSetupModal';
-import { Sparkles, ShieldAlert } from 'lucide-react';
+import { AuthModal } from './components/AuthModal';
+import { Sparkles, ShieldAlert, Lock, LogIn } from 'lucide-react';
 import { isSupabaseConfigured } from './lib/supabase';
 
 export default function App() {
   const [user, setUser] = useState<any>(null);
   const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([
     {
       id: 'item-1',
@@ -70,33 +72,60 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
-            <span className="text-xs font-semibold px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
-              {user ? `로그인됨 (${user.email})` : '로그인 필요 (비회원은 계산만 가능)'}
+            <span
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${
+                user ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-rose-100 text-rose-800 border-rose-200'
+              }`}
+            >
+              {user ? `로그인됨 (${user.email})` : '로그인 필요 (접근 제한됨)'}
             </span>
           </div>
         </div>
 
-        {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column: Form & Guide */}
-          <div className="lg:col-span-5 flex flex-col gap-8">
-            <OrderForm items={orderItems} onChange={setOrderItems} />
-            <ReferenceGuide />
+        {/* Conditional Rendering: If not logged in, hide calculator and show login gate */}
+        {!user ? (
+          <div className="bg-white/90 backdrop-blur-md rounded-3xl p-10 sm:p-16 border border-slate-200 text-center flex flex-col items-center justify-center gap-6 shadow-sm my-6">
+            <div className="w-16 h-16 rounded-3xl bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-inner">
+              <Lock className="w-8 h-8" />
+            </div>
+            <div className="flex flex-col gap-2 max-w-md">
+              <h3 className="text-xl font-bold text-slate-800">인가된 사용자 전용 서비스입니다</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                컨테이너 적재 시뮬레이터 및 CSV 누적 저장 기능을 이용하시려면 Supabase 계정으로 로그인해 주세요.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsAuthModalOpen(true)}
+              className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-2xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>로그인 / 회원가입 하러가기</span>
+            </button>
           </div>
+        ) : (
+          /* Main Grid Layout - Visible ONLY when logged in */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-fadeIn">
+            {/* Left Column: Form & Guide */}
+            <div className="lg:col-span-5 flex flex-col gap-8">
+              <OrderForm items={orderItems} onChange={setOrderItems} />
+              <ReferenceGuide />
+            </div>
 
-          {/* Right Column: Results, Container Comparison & Data Manager */}
-          <div className="lg:col-span-7 flex flex-col gap-8">
-            <ResultSummary result={calculationResult} />
-            <ContainerComparison result={calculationResult} />
-            <DataManager
-              user={user}
-              result={calculationResult}
-              items={orderItems}
-              onLoadItems={setOrderItems}
-              onOpenSetup={() => setIsSetupModalOpen(true)}
-            />
+            {/* Right Column: Results, Container Comparison & Data Manager */}
+            <div className="lg:col-span-7 flex flex-col gap-8">
+              <ResultSummary result={calculationResult} />
+              <ContainerComparison result={calculationResult} />
+              <DataManager
+                user={user}
+                result={calculationResult}
+                items={orderItems}
+                onLoadItems={setOrderItems}
+                onOpenSetup={() => setIsSetupModalOpen(true)}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
       <footer className="bg-white/60 border-t border-slate-200/60 py-6 text-center text-xs text-slate-500 mt-12">
@@ -107,6 +136,7 @@ export default function App() {
       </footer>
 
       <SupabaseSetupModal isOpen={isSetupModalOpen} onClose={() => setIsSetupModalOpen(false)} />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onSuccess={() => setIsAuthModalOpen(false)} />
     </div>
   );
 }

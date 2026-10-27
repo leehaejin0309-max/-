@@ -1,11 +1,11 @@
-export type PackagingType = 'G1' | 'F1' | 'F4' | 'F5';
+export type PackagingType = 'G0' | 'G1' | 'F1' | 'F2' | 'F4' | 'F5' | 'C3L';
 
 export interface PackagingInfo {
   code: PackagingType;
   name: string;
   unitWeightKg: number; // Net weight per unit
   itemsPerPallet: number;
-  palletWeightKg: number; // 10 kg
+  palletWeightKg: number; // 15kg for G0/G1, 10kg for others
   palletDimensions: {
     lengthMm: number;
     widthMm: number;

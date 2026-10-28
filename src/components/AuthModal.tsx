@@ -131,17 +131,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </button>
         </form>
 
-        <div className="flex items-center justify-center gap-2 pt-2 border-t border-slate-100 text-xs">
-          <span className="text-slate-500">
-            {isSignUp ? '이미 계정이 있으신가요?' : '계정이 없으신가요?'}
-          </span>
-          <button
-            type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="font-bold text-indigo-600 hover:underline cursor-pointer"
-          >
-            {isSignUp ? '로그인으로 전환' : '회원가입하기'}
-          </button>
+        <div className="flex flex-col gap-2.5 pt-3 border-t border-slate-100 text-xs">
+          <div className="flex items-center justify-center gap-2 pt-1">
+            <span className="text-slate-500">
+              {isSignUp ? '이미 계정이 있으신가요?' : '계정이 없으신가요?'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="font-bold text-indigo-600 hover:underline cursor-pointer"
+            >
+              {isSignUp ? '로그인으로 전환' : '회원가입하기'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

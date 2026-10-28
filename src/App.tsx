@@ -94,14 +94,16 @@ export default function App() {
                 컨테이너 적재 시뮬레이터 및 CSV 누적 저장 기능을 이용하시려면 Supabase 계정으로 로그인해 주세요.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsAuthModalOpen(true)}
-              className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-2xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
-            >
-              <LogIn className="w-4 h-4" />
-              <span>로그인 / 회원가입 하러가기</span>
-            </button>
+            <div className="w-full max-w-xs">
+              <button
+                type="button"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>이메일 로그인 / 회원가입</span>
+              </button>
+            </div>
           </div>
         ) : (
           /* Main Grid Layout - Visible ONLY when logged in */

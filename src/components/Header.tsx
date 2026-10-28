@@ -28,7 +28,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onUserChange }) => {
   }, [onUserChange]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem('demo_user');
+    await supabase.auth.signOut().catch(() => {});
     onUserChange(null);
   };
 
